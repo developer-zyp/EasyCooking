@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1076540533112",
+    "project_id": "easycooking-7c729",
+    "storage_bucket": "easycooking-7c729.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076540533112:android:5facfa46194685bd99408d",
+        "android_client_info": {
+          "package_name": "com.proton.easycooking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1076540533112-b4i39b9ceb4eng2607d9aau9k8096n9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChzRAyHrm035LyC2p4Crj7QUuuN0dRYCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1076540533112-b4i39b9ceb4eng2607d9aau9k8096n9v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

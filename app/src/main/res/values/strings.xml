@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">Easy Cooking</string>
+    <string name="app_version">Version </string>
+    <string name="app_about">
+        ဟင်းချက်နည်းများစွာကို လွယ်လွယ်ကူကူရှာဖွေပြီး အရသာရှိသောဟင်းလျာများကို လေ့လာချက်ပြုတ်နိုင်ရန်ရည်ရွယ်ပါသည်။
+        \nကိုယ်အလေးချိန်ထိန်းသိမ်းရန် သို့မဟုတ် လျော့ချနိုင်ရန် မိမိစားသုံးသော အစားအစာများတွင်ပါဝင်သော ကယ်လိုရီပမာဏများကိုပါလေ့လာသိရှိနိုင်ပါသည်။
+        \nတွဲဖက်၍မစားသင့်သောအစားအစာများကိုလည်း တစ်ပါတည်းကြည့်ရှုနိုင်ပါသည်။
+        \nဟင်းချက်နည်းများသည် Social Media များပေါ်မှ ကူးယူဖော်ပြထားသောကြောင့်မူရင်းရေးသားသူများကို အသိအမှတ်ပြု Credits ပေးပါသည်။
+    </string>
+    <string name="app_contact">
+        Developed by NEXTS
+        \nContact us : nexts.development@gmail.com
+    </string>မ
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <!--    navigation-->
+    <string name="nav_Special">Today Special</string>
+    <string name="nav_Category">Category</string>
+    <string name="nav_Calorie">Calories</string>
+    <string name="nav_Noeat">NEVER Eat Together</string>
+    <string name="Favourites">Favourites</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="share_text">I Would like to share this App with you. Here You Can Download This Application from PlayStore.</string>
+
+    <!--    recipe detail-->
+    <string name="Ingredients">ပါဝင်ပစ္စည်းများ</string>
+    <string name="Method">ချက်ပြုတ်ပြင်ဆင်ပုံ</string>
+
+    <!--    adMob banner and interstitial id-->
+    <string name="adMob_banner_id">ca-app-pub-6893847210970586/2908864676</string>
+    <string name="adMob_interstitial_id">ca-app-pub-6893847210970586/7969619663</string>
+    <string name="adMob_reward_id">ca-app-pub-6893847210970586/2469590361</string>
+
+    <!--    calories calculator -->
+    <string name="recalculate">ပြန်တွက်ရန်</string>
+    <string name="calculate">တွက်ချက်ရန်</string>
+    <string name="cal_calcDesc">ကိုယ်အလေးချိန်လျှော့ချရန် သို့မဟုတ် တစ်နေ့လျှင်ကယ်လိုရီမည်မျှစားသင့်သည်ကိုတွက်ချက်ရန်သင်၏အသေးစိတ်အချက်အလက်များကိုဖြည့်ပါ။</string>
+    <string name="cal_est"># နေ့စဉ်စားသုံးရန်ကယ်လိုရီပမာဏ #</string>
+    <string name="cal_estDesc">ဤဂဏန်းတွက်စက်သည်သတင်းအချက်အလက်အတွက်သာရည်ရွယ်ပြီးကျန်းမာရေးဆုံးဖြတ်ချက်မချမီကျန်းမာရေးစောင့်ရှောက်မှုပေးသူနှင့်ဆွေးနွေးသင့်သည်။
+    ကယ်လိုရီပါဝင်မှုများကို တစ်ဖက်ပါ Page တွင် အမျိုးအစားအလိုက် ကြည့်ရှုနိုင်ပါသည်။</string>
+    <string name="cal_normalResult">ကိုယ်အလေးချိန်ထိန်းသိမ်းရန်</string>
+    <string name="cal_loseResult">ကိုယ်အလေးချိန်လျော့ချရန်</string>
+    <string name="cal_moreResult">ကိုယ်အလေးချိန်တိုးရန်</string>
+    <string name="cal_80">80% (၁ ပတ်လျှင် ၁ ပေါင်)</string>
+    <string name="cal_60">120% (၁ ပတ်လျှင် ၁ ပေါင်)</string>
+
+    <!--    Tabs-->
+    <string name="cal_amount">ပါဝင်မှု</string>
+    <string name="cal_calculator">တွက်ချက်</string>
+
+    <!--    adclick-->
+    <string name="dialog_adview">Click 👇 If You ❤️ Me</string>
+
+
+</resources>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_today_special"
+            android:checked="true"
+            android:icon="@drawable/menu_pot"
+            android:title="@string/nav_Special" />
+        <item
+            android:id="@+id/nav_category"
+            android:icon="@drawable/menu_category"
+            android:title="@string/nav_Category" />
+        <item
+            android:id="@+id/nav_calories_cal"
+            android:icon="@drawable/menu_calories"
+            android:title="@string/nav_Calorie" />
+        <item
+            android:id="@+id/nav_never_eat"
+            android:icon="@drawable/menu_noeat"
+            android:title="@string/nav_Noeat" />
+
+        <item
+            android:id="@+id/nav_favorite"
+            android:icon="@drawable/menu_favorite"
+            android:title="@string/Favourites" />
+
+    </group>
+
+    <group
+        android:id="@+id/group_divider"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/menu_share"
+            android:title="Share"
+            android:checkable="false"/>
+
+        <item
+            android:id="@+id/nav_rate"
+            android:icon="@drawable/menu_rate"
+            android:title="Rate App"
+            android:checkable="false"/>
+
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/menu_about"
+            android:title="About App"
+            android:checkable="false"/>
+    </group>
+
+</menu>
