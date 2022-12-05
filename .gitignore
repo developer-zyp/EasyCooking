@@ -166,18 +166,18 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio
 
-#*.iml
-#.gradle
-#/local.properties
-#/.idea/caches
-#/.idea/libraries
-#/.idea/modules.xml
-#/.idea/workspace.xml
-#/.idea/navEditor.xml
-#/.idea/assetWizardSettings.xml
-#.DS_Store
-#/build
-#/captures
-#.externalNativeBuild
-#.cxx
-#local.properties
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
