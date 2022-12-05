@@ -1,34 +1,16 @@
 package com.proton.easycooking.models;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class AppConfig {
-
-    @SerializedName("Id")
-    @Expose
+public class AppSetting implements Serializable {
     private String id;
-    @SerializedName("Name")
-    @Expose
     private String name;
-    @SerializedName("Value")
-    @Expose
     private String value;
 
-    /**
-     * No args constructor for use in serialization
-     *
-     */
-    public AppConfig() {
+    public AppSetting() {
     }
 
-    /**
-     *
-     * @param name
-     * @param id
-     * @param value
-     */
-    public AppConfig(String id, String name, String value) {
+    public AppSetting(String id, String name, String value) {
         super();
         this.id = id;
         this.name = name;

@@ -1,6 +1,9 @@
 package com.proton.easycooking.tabs;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,19 +12,16 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.google.android.material.tabs.TabLayout;
-import com.proton.easycooking.fragments.CaloriesCalFragment;
-import com.proton.easycooking.fragments.CategoryFragment;
+import com.proton.easycooking.AppTools;
 import com.proton.easycooking.R;
+import com.proton.easycooking.fragments.CaloriesAmtFragment;
+import com.proton.easycooking.fragments.CaloriesCalFragment;
 
 public class TabCaloriesCalcFragment extends Fragment {
 
-    public static TabLayout tabLayout;
-    public static ViewPager viewPager;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,7 +30,8 @@ public class TabCaloriesCalcFragment extends Fragment {
         View fragmentView = inflater.inflate(R.layout.fragment_tab_calories_calc, container, false);
 
         viewPager = (ViewPager) fragmentView.findViewById(R.id.viewpager);
-        viewPager.setAdapter(new MyAdapter(getChildFragmentManager(),1));
+        PagerAdapter pagerAdapter = new PagerAdapter(getChildFragmentManager(), 1);
+        viewPager.setAdapter(pagerAdapter);
 
         tabLayout = (TabLayout) fragmentView.findViewById(R.id.tabs);
         tabLayout.post(new Runnable() {
@@ -40,19 +41,31 @@ public class TabCaloriesCalcFragment extends Fragment {
             }
         });
 
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 1) {
+                    AppTools.showToast(getContext(), getString(R.string.gram_kt));
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
         return fragmentView;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        //mainActivity.setupNavigationDrawer(toolbar);
-    }
+    class PagerAdapter extends FragmentPagerAdapter {
 
-    class MyAdapter extends FragmentPagerAdapter{
-
-
-        public MyAdapter(@NonNull FragmentManager fm, int behavior) {
+        public PagerAdapter(@NonNull FragmentManager fm, int behavior) {
             super(fm, behavior);
         }
 
@@ -63,9 +76,10 @@ public class TabCaloriesCalcFragment extends Fragment {
                 case 0:
                     return new CaloriesCalFragment();
                 case 1:
-                    return new CategoryFragment(2);
+                    return new CaloriesAmtFragment();
+                default:
+                    return new CaloriesCalFragment();
             }
-            return null;
         }
 
         @Override
@@ -84,7 +98,6 @@ public class TabCaloriesCalcFragment extends Fragment {
             }
             return super.getPageTitle(position);
         }
-
     }
 
 }

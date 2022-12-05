@@ -19,3 +19,38 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+#Glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public class * extends com.bumptech.glide.module.AppGlideModule
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+ **[] $VALUES;
+ public *;
+ }
+# Uncomment for DexGuard only
+#-keepresourcexmlelements manifest/application/meta-data@value=GlideModule
+
+-keep class com.proton.easycooking.models.* { *; }
+
+# Retrofit
+-dontwarn retrofit.**
+-keep class retrofit.* { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+
+# OkHttp3
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class okhttp3.* { *; }
+-keep interface okhttp3.* { *; }
+-dontwarn okhttp3.**
+-dontnote okhttp3.**
+
+# Okio
+#-keep class sun.misc. { *; }
+#-dontwarn java.nio.file.*
+#-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# Gson
+#-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.* { *; }

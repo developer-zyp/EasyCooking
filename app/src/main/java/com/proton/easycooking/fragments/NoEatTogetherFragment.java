@@ -2,16 +2,6 @@ package com.proton.easycooking.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuItemCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,9 +14,18 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.proton.easycooking.APIClient;
 import com.proton.easycooking.APIInterface;
-import com.proton.easycooking.NetworkTask;
+import com.proton.easycooking.AppTools;
 import com.proton.easycooking.R;
 import com.proton.easycooking.adapters.AdapterNoEat;
 import com.proton.easycooking.models.NoEatItem;
@@ -50,7 +49,6 @@ public class NoEatTogetherFragment extends Fragment {
     RecyclerView recyclerView;
     AdapterNoEat adapterNoEat;
 
-    Boolean checkServer = false;
     //endregion
 
     @Override
@@ -59,20 +57,21 @@ public class NoEatTogetherFragment extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_no_eat_together, container, false);
 
-        rootLayout = (LinearLayout) fragmentView.findViewById(R.id.rootLayout);
+//        rootLayout = fragmentView.findViewById(R.id.rootLayout);
+
 //        if (Config.ENABLE_RTL_MODE) {
 //            rootLayout.setRotationY(180);
 //        }
 
-        no_network_Layout = (RelativeLayout) fragmentView.findViewById(R.id.no_network);
-        grid_layout = (RelativeLayout) fragmentView.findViewById(R.id.grid_layout);
+        no_network_Layout = fragmentView.findViewById(R.id.no_network);
+        grid_layout = fragmentView.findViewById(R.id.grid_layout);
 
         //SwipeRefreshLayout
-        swipeRefreshLayout = (SwipeRefreshLayout) fragmentView.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
+        swipeRefreshLayout = fragmentView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
         //RecyclerView
-        recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+        recyclerView = fragmentView.findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -83,52 +82,43 @@ public class NoEatTogetherFragment extends Fragment {
 
         swipeRefreshLayout.setRefreshing(true);
 
-        new NetworkTask().execute(APIClient.BASE_URL);
+        new Handler().post(() -> {
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
+            if (AppTools.isNetworkAvailable(getContext())) {
+                getNoEatItemList();
+                no_network_Layout.setVisibility(View.GONE);
+                grid_layout.setVisibility(View.VISIBLE);
 
-                if (NetworkTask.checkServerConnection) {
-                    getNoEatItemList();
-                    no_network_Layout.setVisibility(View.GONE);
-                    grid_layout.setVisibility(View.VISIBLE);
-
-                } else {
-                    swipeRefreshLayout.setRefreshing(false);
-                    no_network_Layout.setVisibility(View.VISIBLE);
-                    grid_layout.setVisibility(View.GONE);
-
-                }
+            } else {
+                swipeRefreshLayout.setRefreshing(false);
+                no_network_Layout.setVisibility(View.VISIBLE);
+                grid_layout.setVisibility(View.GONE);
 
             }
-        }, 1000);
+
+        });
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new NetworkTask().execute(APIClient.BASE_URL);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+                new Handler().post(() -> {
 
-                        swipeRefreshLayout.setRefreshing(false);
-                        if (NetworkTask.checkServerConnection) {
-                            getNoEatItemList();
-                            no_network_Layout.setVisibility(View.GONE);
-                            grid_layout.setVisibility(View.VISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+                    if (AppTools.isNetworkAvailable(getContext())) {
+                        getNoEatItemList();
+                        no_network_Layout.setVisibility(View.GONE);
+                        grid_layout.setVisibility(View.VISIBLE);
+                    } else {
+                        if (dataNoEatItem.size() > 0) {
+                            Toast.makeText(getContext(), "No Internet Connection!",
+                                    Toast.LENGTH_SHORT).show();
                         } else {
-                            if (dataNoEatItem.size() > 0) {
-                                Toast.makeText(getContext(), "No Internet Connection!",
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
-                                no_network_Layout.setVisibility(View.VISIBLE);
-                                grid_layout.setVisibility(View.GONE);
-                            }
+                            no_network_Layout.setVisibility(View.VISIBLE);
+                            grid_layout.setVisibility(View.GONE);
                         }
-
                     }
-                }, 1000);
+
+                });
             }
         });
 
@@ -160,7 +150,7 @@ public class NoEatTogetherFragment extends Fragment {
             @Override
             public void onFailure(Call<List<NoEatItem>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getContext(), "ERROR : Fail to receive data!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "ERROR : Fail to load data!", Toast.LENGTH_SHORT).show();
                 System.out.println("Fail: " + t.getMessage());
 
             }
@@ -194,33 +184,29 @@ public class NoEatTogetherFragment extends Fragment {
             }
         });
 
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean hasFocus) {
-                if (!hasFocus) {
-                    searchItem.collapseActionView();
-                    //searchView.setQuery("", false);
-                    adapterNoEat.setNoEatItemList(dataNoEatItem);
-
-                    swipeRefreshLayout.setEnabled(true);
-                } else {
-                    swipeRefreshLayout.setEnabled(false);
-                }
-            }
-        });
+//        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View view, boolean hasFocus) {
+//                if (!hasFocus) {
+//                    searchItem.collapseActionView();
+//                    //searchView.setQuery("", false);
+//                    adapterNoEat.setNoEatItemList(dataNoEatItem);
+//
+//                    swipeRefreshLayout.setEnabled(true);
+//                } else {
+//                    swipeRefreshLayout.setEnabled(false);
+//                }
+//            }
+//        });
 
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Toast.makeText(getContext(),"This is R.id.Home",Toast.LENGTH_SHORT).show();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            return true;
         }
+        return super.onOptionsItemSelected(item);
 
     }
 

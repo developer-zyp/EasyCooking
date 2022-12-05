@@ -1,13 +1,6 @@
 package com.proton.easycooking.fragments;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
@@ -17,27 +10,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.rewarded.RewardItem;
-import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdCallback;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.material.textfield.TextInputEditText;
-import com.proton.easycooking.Config;
+import com.proton.easycooking.AdMob;
+import com.proton.easycooking.AppTools;
 import com.proton.easycooking.InputFilterMinMax;
 import com.proton.easycooking.R;
 
 
 public class CaloriesCalFragment extends Fragment {
 
-    LinearLayout layout_calculate;
-    RelativeLayout layout_result;
+    LinearLayout layout_calculate, layout_result;
 
     Button btn_calculate, btn_result;
     RadioButton rdo_male, rdo_female;
@@ -48,13 +35,12 @@ public class CaloriesCalFragment extends Fragment {
     int AMR = 0;
     double ACT = 0.0;
 
-    final String[] array = new String[]{
+    int index = -1;
+
+    String[] cal_array = new String[]{
             "Little or no exercise", "Light exercise 1-3 days/week",
             "Moderate exercise 3-5 days/week", "Hard exercise 6-7 days/week"
     };
-
-    private RewardedAd rewardedAd;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,10 +48,8 @@ public class CaloriesCalFragment extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_calories_cal, container, false);
 
-        createAndLoadRewardedAd(getActivity().getResources().getString(R.string.adMob_reward_id));
-
         layout_calculate = (LinearLayout) fragmentView.findViewById(R.id.layout_calculate);
-        layout_result = (RelativeLayout) fragmentView.findViewById(R.id.layout_result);
+        layout_result = (LinearLayout) fragmentView.findViewById(R.id.layout_result);
 
         rdo_male = (RadioButton) fragmentView.findViewById(R.id.rdo_male);
         rdo_female = (RadioButton) fragmentView.findViewById(R.id.rdo_female);
@@ -76,10 +60,10 @@ public class CaloriesCalFragment extends Fragment {
         edt_Pounds = (TextInputEditText) fragmentView.findViewById(R.id.edt_pounds);
         edt_Activity = (TextInputEditText) fragmentView.findViewById(R.id.edt_Activity);
 
-        edt_Years.setFilters(new InputFilter[]{new InputFilterMinMax(1, 80)});
+        edt_Years.setFilters(new InputFilter[]{new InputFilterMinMax(1, 60)});
         edt_Feet.setFilters(new InputFilter[]{new InputFilterMinMax(4, 7)});
         edt_Inches.setFilters(new InputFilter[]{new InputFilterMinMax(1, 11)});
-        edt_Pounds.setFilters(new InputFilter[]{new InputFilterMinMax(1, 350)});
+        edt_Pounds.setFilters(new InputFilter[]{new InputFilterMinMax(1, 250)});
 
         tv_Normal = (TextView) fragmentView.findViewById(R.id.tv_normalResult);
         tv_LoseWeight = (TextView) fragmentView.findViewById(R.id.tv_loseResult);
@@ -91,95 +75,59 @@ public class CaloriesCalFragment extends Fragment {
 //        Very active = BMR X 1.725 (hard exercise/sports 6-7 days/wk)
 //        Extr. active = BMR X 1.9 (hard daily exercise/sports & physical job or 2X day training, i.e marathon, contest etc.)
 
-        edt_Activity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showActivityDialog(view);
-            }
-        });
+        cal_array = getResources().getStringArray(R.array.cal_array);
+
+        edt_Activity.setOnClickListener(this::showActivityDialog);
 
         btn_calculate = (Button) fragmentView.findViewById(R.id.btn_cal_calculate);
-        btn_calculate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (edt_Years.getText().toString().equals("") ||
-                        edt_Feet.getText().toString().equals("") ||
-                        edt_Pounds.getText().toString().equals("") ||
-                        ACT == 0.0) {
-                    showErrorDialog("Warning!", "Please fill the details.");
-                    return;
+        btn_calculate.setOnClickListener(view -> {
 
-                }
-                pounds = Integer.parseInt(edt_Pounds.getText().toString());
-                age = Integer.parseInt(edt_Years.getText().toString());
-                if (age < 15 || pounds < 50) {
-                    showErrorDialog("Warning!", "Invalid input.");
-                    return;
-                }
-
-                ProgressDialog progressDialog = new ProgressDialog(getContext(), R.style.MyProgressDialogStyle);
-                progressDialog.setMessage("Please wait ...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setCancelable(false);
-                progressDialog.show();
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        inches = (Integer.parseInt(edt_Feet.getText().toString()) * 12) +
-                                Integer.parseInt(edt_Inches.getText().toString().equals("") ? "0" : edt_Inches.getText().toString());
-
-                        //Active Metabolic Rate
-                        AMR = (int) Math.round(calculateBMR(pounds, inches, age) * ACT);
-
-                        tv_Normal.setText(String.valueOf(AMR));
-                        tv_LoseWeight.setText(String.valueOf(Math.round(AMR * 0.8)));
-                        tv_MoreLoseWeight.setText(String.valueOf(Math.round(AMR * 0.6)));
-
-                        if (Config.ENABLE_ADMOB_REWARDED_ADS) {
-                            showRewardedAd(1);
-                            createAndLoadRewardedAd(getActivity().getResources().getString(R.string.adMob_reward_id));
-                        } else {
-                            layout_calculate.setVisibility(View.GONE);
-                            layout_result.setVisibility(View.VISIBLE);
-                        }
-
-                        progressDialog.dismiss();
-
-                    }
-                }, 2000);
+            if (edt_Years.getText().toString().equals("") ||
+                    edt_Feet.getText().toString().equals("") ||
+                    edt_Pounds.getText().toString().equals("") ||
+                    ACT == 0.0) {
+                AppTools.showAlertDialog(getContext(), "", getString(R.string.cal_dialog_need));
+                return;
 
             }
+            pounds = Integer.parseInt(edt_Pounds.getText().toString());
+            age = Integer.parseInt(edt_Years.getText().toString());
+            if (age < 15 || pounds < 50) {
+                AppTools.showAlertDialog(getContext(), "", getString(R.string.cal_dialog_invalid));
+                return;
+            }
+
+            AdMob.showRewardedAd(getContext(), "admob", adClosed -> {
+            });
+
+            new Handler().postDelayed(() -> {
+
+                inches = (Integer.parseInt(edt_Feet.getText().toString()) * 12) +
+                        Integer.parseInt(edt_Inches.getText().toString().equals("") ? "0" : edt_Inches.getText().toString());
+
+                //Active Metabolic Rate
+                AMR = (int) Math.round(calculateBMR(pounds, inches, age) * ACT);
+
+                tv_Normal.setText(String.valueOf(AMR));
+                tv_LoseWeight.setText(String.valueOf(Math.round(AMR * 0.8)));
+                tv_MoreLoseWeight.setText(String.valueOf(Math.round(AMR * 1.2)));
+
+                layout_calculate.setVisibility(View.GONE);
+                layout_result.setVisibility(View.VISIBLE);
+
+            }, 500);
+
         });
 
         btn_result = (Button) fragmentView.findViewById(R.id.btn_cal_result);
-        btn_result.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        btn_result.setOnClickListener(view -> {
+            AppTools.showProgressDialog(getContext(), "Please wait ...");
+            new Handler().postDelayed(() -> {
+                layout_result.setVisibility(View.GONE);
+                layout_calculate.setVisibility(View.VISIBLE);
+                AppTools.hideProgressDialog();
 
-                ProgressDialog progressDialog = new ProgressDialog(getContext(), R.style.MyProgressDialogStyle);
-                progressDialog.setMessage("Please wait ...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setCancelable(false);
-                progressDialog.show();
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (Config.ENABLE_ADMOB_REWARDED_ADS) {
-                            showRewardedAd(0);
-                            createAndLoadRewardedAd(getActivity().getResources().getString(R.string.adMob_reward_id));
-                        } else {
-                            layout_result.setVisibility(View.GONE);
-                            layout_calculate.setVisibility(View.VISIBLE);
-                        }
-                        progressDialog.dismiss();
-
-                    }
-                }, 2000);
-
-            }
+            }, 500);
         });
 
         return fragmentView;
@@ -204,106 +152,35 @@ public class CaloriesCalFragment extends Fragment {
 
     private void showActivityDialog(final View v) {
         final double[] ACT_tmp = {0.0};
-        final int[] index = {-1};
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Activities");
-        builder.setSingleChoiceItems(array, -1, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                index[0] = i;
-                switch (i) {
-                    case 0:
-                        ACT_tmp[0] = 1.2;
-                        break;
-                    case 1:
-                        ACT_tmp[0] = 1.375;
-                        break;
-                    case 2:
-                        ACT_tmp[0] = 1.55;
-                        break;
-                    case 3:
-                        ACT_tmp[0] = 1.725;
-                        break;
-                }
+        builder.setCancelable(false);
+        builder.setSingleChoiceItems(cal_array, index, (dialogInterface, i) -> {
+            index = i;
+            switch (i) {
+                case 0:
+                    ACT_tmp[0] = 1.2;
+                    break;
+                case 1:
+                    ACT_tmp[0] = 1.375;
+                    break;
+                case 2:
+                    ACT_tmp[0] = 1.55;
+                    break;
+                case 3:
+                    ACT_tmp[0] = 1.725;
+                    break;
+            }
 
-            }
         });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+        builder.setPositiveButton("OK", (dialogInterface, i) -> {
+            if (index >= 0) {
                 ACT = ACT_tmp[0];
-                if (index[0] >= 0) ((EditText) v).setText(array[index[0]]);
-                dialogInterface.dismiss();
+                ((EditText) v).setText(cal_array[index]);
             }
+            dialogInterface.dismiss();
         });
         builder.show();
-    }
-
-    private void showErrorDialog(String title, String message) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        //dialog.setIcon(R.mipmap.ic_launcher);
-        dialog.setTitle(title);
-        dialog.setMessage(message);
-        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        dialog.show();
-    }
-
-    public void createAndLoadRewardedAd(String adUnitId) {
-        rewardedAd = new RewardedAd(getContext(), adUnitId);
-        RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
-            @Override
-            public void onRewardedAdLoaded() {
-                // Ad successfully loaded.
-            }
-
-            @Override
-            public void onRewardedAdFailedToLoad(LoadAdError adError) {
-                // Ad failed to load.
-            }
-        };
-        rewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
-    }
-
-    public void showRewardedAd(int page) {
-        if (rewardedAd.isLoaded()) {
-            RewardedAdCallback adCallback = new RewardedAdCallback() {
-                @Override
-                public void onRewardedAdOpened() {
-                    // Ad opened.
-                }
-
-                @Override
-                public void onRewardedAdClosed() {
-                    // Ad closed.
-                }
-
-                @Override
-                public void onUserEarnedReward(@NonNull RewardItem reward) {
-                    // User earned reward.
-                    if (page == 1) {
-                        layout_calculate.setVisibility(View.GONE);
-                        layout_result.setVisibility(View.VISIBLE);
-                    } else {
-                        layout_result.setVisibility(View.GONE);
-                        layout_calculate.setVisibility(View.VISIBLE);
-                    }
-
-                }
-
-                @Override
-                public void onRewardedAdFailedToShow(AdError adError) {
-                    // Ad failed to display.
-                }
-            };
-            rewardedAd.show(getActivity(), adCallback);
-        } else {
-            Toast.makeText(getContext(), "Connection fail!\n Please retry.", Toast.LENGTH_LONG).show();
-        }
     }
 
 }

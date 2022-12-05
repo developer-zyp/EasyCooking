@@ -1,5 +1,7 @@
 package com.proton.easycooking;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -7,23 +9,21 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.proton.easycooking.models.AppConfig;
+import com.proton.easycooking.models.AppSetting;
 import com.proton.easycooking.models.Category;
-import com.proton.easycooking.models.Recipes;
+import com.proton.easycooking.models.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "EasyCooking";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Table Names
-    private static final String TABLE_APPCONFIG = "AppConfig";
+    private static final String TABLE_APPSETTING = "AppSetting";
     private static final String TABLE_CATEGORY = "Category";
     private static final String TABLE_RECIPE = "Recipes";
 
@@ -43,6 +43,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_RECIPE_NAME = "recipeName";
     private static final String KEY_RECIPE_DESCRIPTION = "recipeDescription";
     private static final String KEY_RECIPE_IMAGE = "recipeImage";
+    private static final String KEY_RECIPE_FAV = "recipeFav";
+    private static final String KEY_RECIPE_VIEW = "recipeView";
 
     private static DatabaseHelper sInstance;
 
@@ -50,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         if (sInstance == null) {
-            sInstance = new DatabaseHelper(context.getApplicationContext());
+            sInstance = new DatabaseHelper(context);
         }
         return sInstance;
     }
@@ -76,7 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion != newVersion) {
             // Simplest implementation is to drop all old tables and recreate them
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_APPCONFIG);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_APPSETTING);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECIPE);
             onCreate(db);
@@ -85,7 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_APPCONFIG_TABLE = "CREATE TABLE " + TABLE_APPCONFIG +
+        String CREATE_APPCONFIG_TABLE = "CREATE TABLE " + TABLE_APPSETTING +
                 "(" +
                 KEY_APPINFO_ID + " INTEGER PRIMARY KEY," + // Define a primary key
                 KEY_APPINFO_NAME + " TEXT," +
@@ -106,7 +108,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 KEY_RECIPE_CATEGORY_ID + " INTEGER," +
                 KEY_RECIPE_NAME + " TEXT," +
                 KEY_RECIPE_DESCRIPTION + " TEXT," +
-                KEY_RECIPE_IMAGE + " TEXT" +
+                KEY_RECIPE_IMAGE + " TEXT," +
+                KEY_RECIPE_FAV + " TEXT," +
+                KEY_RECIPE_VIEW + " TEXT" +
                 ")";
 
         db.execSQL(CREATE_APPCONFIG_TABLE);
@@ -115,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void addAppConfig(AppConfig data) {
+    public void addAppConfig(AppSetting data) {
 
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
@@ -126,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_APPINFO_NAME, data.getName());
             values.put(KEY_APPINFO_VALUE, data.getValue());
 
-            db.insertOrThrow(TABLE_APPCONFIG, null, values);
+            db.insertOrThrow(TABLE_APPSETTING, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.d(TAG, "Error while trying to add data to database");
@@ -137,9 +141,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String getAppConfig(String name) {
-        String value = null;
+        String value = "0";
 
-        String selectQuery = "SELECT Value FROM " + TABLE_APPCONFIG + " WHERE Name ='" + name + "'";
+        String selectQuery = "SELECT Value FROM " + TABLE_APPSETTING + " WHERE Name ='" + name + "'";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -157,7 +161,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public String getNewRecipesId(String id) {
         String value = null;
 
-        String selectQuery = "SELECT Name FROM " + TABLE_APPCONFIG + " WHERE Id ='" + id + "'";
+        String selectQuery = "SELECT Name FROM " + TABLE_APPSETTING + " WHERE Id ='" + id + "'";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -169,6 +173,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
+        cursor.close();
+
         return value;
     }
 
@@ -177,34 +183,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(KEY_APPINFO_NAME, date);
         cv.put(KEY_APPINFO_VALUE, value);
-        db.update(TABLE_APPCONFIG, cv, "Id = ?", new String[]{"100"});
+        db.update(TABLE_APPSETTING, cv, "Id = ?", new String[]{"100"});
 
     }
 
     public void deleteAppConfig() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_APPCONFIG, "Id <> ?", new String[]{"100"});
+        db.delete(TABLE_APPSETTING, "Id <> ?", new String[]{"100"});
         db.close();
     }
 
     // Insert a post into the database
-    public void addCategory(Category category) {
+    public void addCategory(List<Category> categories) {
 
         SQLiteDatabase db = getWritableDatabase();
         // It's a good idea to wrap our insert in a transaction. This helps with performance and ensures
         // consistency of the database.
         db.beginTransaction();
         try {
-            // The user might already exist in the database (i.e. the same user created multiple posts).
-            //long userId = addOrUpdateUser(post.user);
-            ContentValues values = new ContentValues();
-            values.put(KEY_CATEGORY_ID, category.getCategoryId());
-            values.put(KEY_CATEGORY_NAME, category.getCategoryName());
-            values.put(KEY_CATEGORY_NAME, category.getCategoryName());
 
-            // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
-            db.insertOrThrow(TABLE_CATEGORY, null, values);
-            db.setTransactionSuccessful();
+            for (Category category : categories) {
+                ContentValues values = new ContentValues();
+                values.put(KEY_CATEGORY_ID, category.getCategoryId());
+                values.put(KEY_CATEGORY_NAME, category.getCategoryName());
+                values.put(KEY_CATEGORY_NAME, category.getCategoryName());
+
+                // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
+                db.insertOrThrow(TABLE_CATEGORY, null, values);
+                db.setTransactionSuccessful();
+            }
+
         } catch (Exception e) {
             Log.d(TAG, "Error while trying to add data to database");
         } finally {
@@ -212,7 +220,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void addRecipe(Recipes recipe) {
+    // Delete Recipe
+    public void deleteCategory() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_CATEGORY, null, new String[]{});
+        db.close();
+    }
+
+    public void addRecipe(Recipe recipe) {
 
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
@@ -222,8 +237,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_RECIPE_ID, recipe.getRecipeId());
             values.put(KEY_RECIPE_CATEGORY_ID, recipe.getCategoryId());
             values.put(KEY_RECIPE_NAME, recipe.getRecipeName());
-            values.put(KEY_RECIPE_DESCRIPTION, "recipe.getRecipeDescription()");
+            values.put(KEY_RECIPE_DESCRIPTION, recipe.getRecipeDescription());
             values.put(KEY_RECIPE_IMAGE, recipe.getRecipeImage());
+            values.put(KEY_RECIPE_FAV, recipe.getRecipeFav());
+            values.put(KEY_RECIPE_VIEW, recipe.getRecipeView());
 
             db.insertOrThrow(TABLE_RECIPE, null, values);
             db.setTransactionSuccessful();
@@ -235,8 +252,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Get all recipes in the database
-    public List<Recipes> getAllRecipes() {
-        List<Recipes> dataList = new ArrayList<>();
+    public List<Recipe> getAllRecipes() {
+        List<Recipe> dataList = new ArrayList<>();
 
         String selectQuery = "SELECT * FROM " + TABLE_RECIPE + " ORDER BY recipeId";
 
@@ -245,12 +262,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             if (cursor.moveToFirst()) {
                 do {
-                    Recipes contact = new Recipes();
+                    Recipe contact = new Recipe();
                     contact.setRecipeId(cursor.getString(0));
                     contact.setCategoryId(cursor.getString(1));
                     contact.setRecipeName(cursor.getString(2));
                     contact.setRecipeDescription(cursor.getString(3));
                     contact.setRecipeImage(cursor.getString(4));
+                    contact.setRecipeFav(cursor.getString(5));
+                    contact.setRecipeView(cursor.getString(6));
 
                     dataList.add(contact);
                 } while (cursor.moveToNext());
@@ -266,8 +285,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Get Recipe by Id
-    public List<Recipes> getRecipe(String id) {
-        List<Recipes> dataList = new ArrayList<>();
+    public List<Recipe> getRecipe(String id) {
+        List<Recipe> dataList = new ArrayList<>();
 
         String selectQuery = "SELECT * FROM " + TABLE_RECIPE + " WHERE recipeId =" + id;
 
@@ -276,12 +295,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                Recipes contact = new Recipes();
+                Recipe contact = new Recipe();
                 contact.setRecipeId(cursor.getString(0));
                 contact.setCategoryId(cursor.getString(1));
                 contact.setRecipeName(cursor.getString(2));
                 contact.setRecipeDescription(cursor.getString(3));
                 contact.setRecipeImage(cursor.getString(4));
+                contact.setRecipeFav(cursor.getString(5));
+                contact.setRecipeView(cursor.getString(6));
 
                 dataList.add(contact);
             } while (cursor.moveToNext());
@@ -291,7 +312,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Delete Recipe
-    public void deleteRecipe(Recipes recipe) {
+    public void deleteRecipe(Recipe recipe) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_RECIPE, KEY_RECIPE_ID + " = ?",
                 new String[]{String.valueOf(recipe.getRecipeId())});

@@ -1,84 +1,128 @@
 package com.proton.easycooking;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.*;
-
 import com.bumptech.glide.Glide;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.proton.easycooking.models.Recipes;
-import com.proton.easycooking.R;
+import com.google.gson.JsonObject;
+import com.proton.easycooking.models.Recipe;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RecipesDetailActivity extends AppCompatActivity {
 
-    static final String TAG = "RecipesDetail";
+    static final String TAG = "RecipesDetailActivity";
 
     Context context;
+    DatabaseHelper db;
 
     CollapsingToolbarLayout collapsingToolbarLayout;
     CoordinatorLayout coordinatorLayout;
 
-    ImageView img_fav, recipeImage;
+    FloatingActionButton img_fav;
+    ImageView recipeImage;
     TextView tv_recipeName, tv_recipeDetail;
+    WebView webDetail;
 
-    ProgressDialog progressDialog;
-
-    DatabaseHelper db;
-
-    List<Recipes> recipesList = new ArrayList<Recipes>();
-    List<Recipes> itemFavorites = new ArrayList<>();
-    String recipeDescription = "";
-    String[] recipeIM;
-
-    private AdView adView;
+    List<Recipe> recipeList;
+    List<Recipe> itemFavorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipes_detail);
 
-        MobileAds.initialize(this);
-        if(Config.ENABLE_ADMOB_BANNER_ADS){
-            loadAdMobBannerAd();
-        }
-
         context = this;
         db = DatabaseHelper.getInstance(this);
 
+        initToolbar();
+
         recipeImage = (ImageView) findViewById(R.id.recipe_image);
         tv_recipeName = (TextView) findViewById(R.id.recipe_Name);
-
         tv_recipeDetail = (TextView) findViewById(R.id.recipe_detail);
+        img_fav = (FloatingActionButton) findViewById(R.id.img_fav);
 
+        webDetail = findViewById(R.id.web_detail);
+
+        recipeList = new ArrayList<>();
+        itemFavorites = new ArrayList<>();
+        recipeList.add(AppTools.itemRecipeDetail);
+        recipeList.size();
+        Glide.with(this).load(recipeList.get(0).getRecipeImage())
+                .placeholder(R.drawable.simple_img)
+                .into(recipeImage);
+
+        tv_recipeName.setText(recipeList.get(0).getRecipeName());
+
+        String recipeDescription = recipeList.get(0).getRecipeDescription();
+        tv_recipeDetail.setText(Html.fromHtml(recipeDescription));
+
+        webDetail.loadData(recipeDescription, "text/html", "utf-8");
+
+        itemFavorites = db.getRecipe(recipeList.get(0).getRecipeId());
+        if (itemFavorites.size() == 0) {
+            img_fav.setImageResource(R.drawable.ic_favorite_outline_white);
+        } else {
+            img_fav.setImageResource(R.drawable.ic_favorite_white);
+
+        }
+
+        updateFavCount(true);
+
+        img_fav.setOnClickListener(view -> {
+            itemFavorites = db.getRecipe(recipeList.get(0).getRecipeId());
+            if (itemFavorites.size() == 0) {
+
+                db.addRecipe(recipeList.get(0));
+                Toast.makeText(context, "Added to Favorite!", Toast.LENGTH_SHORT).show();
+                img_fav.setImageResource(R.drawable.ic_favorite_white);
+
+                updateFavCount(false);
+
+            } else {
+
+                db.deleteRecipe(recipeList.get(0));
+                Toast.makeText(context, "Removed from Favorite!", Toast.LENGTH_SHORT).show();
+                img_fav.setImageResource(R.drawable.ic_favorite_outline_white);
+
+            }
+        });
+
+        CardView adCardView = findViewById(R.id.cv_ad_detail);
+        AdMob.showBannerAds(this, "admob", adCardView, AdSize.BANNER);
+
+        RelativeLayout layoutAdView = findViewById(R.id.layout_adview);
+        AdMob.showBannerAds(this, "admob", layoutAdView, AdSize.LARGE_BANNER);
+
+
+    }
+
+    private void initToolbar() {
         // toolbar
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -118,136 +162,34 @@ public class RecipesDetailActivity extends AppCompatActivity {
             }
         });
 
-        progressDialog = new ProgressDialog(context, R.style.MyProgressDialogStyle);
-        progressDialog.setMessage("Loading ...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        new NetworkTask().execute(APIClient.BASE_URL);
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (NetworkTask.checkServerConnection) {
-                    getRecipeDetail();
-
-//                    if (progressDialog != null && progressDialog.isShowing())
-//                        progressDialog.dismiss();
-
-                } else {
-                    if (progressDialog != null && progressDialog.isShowing())
-                        progressDialog.dismiss();
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-                    alertDialog.setTitle("Warning!");
-                    alertDialog.setMessage("No Internet Connection.");
-                    alertDialog.setPositiveButton("RETRY", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            recreate();
-                        }
-                    });
-                    alertDialog.show();
-                }
-            }
-        }, 1000);
-
-        img_fav = (FloatingActionButton) findViewById(R.id.img_fav);
-
-        img_fav.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                itemFavorites = db.getRecipe(recipesList.get(0).getRecipeId());
-                if (itemFavorites.size() == 0) {
-
-                    db.addRecipe(recipesList.get(0));
-                    Toast.makeText(getApplicationContext(), "Added to Favorite!", Toast.LENGTH_SHORT).show();
-                    img_fav.setImageResource(R.drawable.ic_favorite_white);
-
-                    updateFavCount();
-
-                } else {
-
-                    db.deleteRecipe(recipesList.get(0));
-                    Toast.makeText(getApplicationContext(), "Removed from Favorite!", Toast.LENGTH_SHORT).show();
-                    img_fav.setImageResource(R.drawable.ic_favorite_outline_white);
-
-                }
-            }
-        });
 
     }
 
-    public void getRecipeDetail() {
-        Call<List<Recipes>> callRecipe = APIClient.getService().create(APIInterface.class).getRecipeById(GlobalClass.recipeId);
-        callRecipe.enqueue(new Callback<List<Recipes>>() {
-            @Override
-            public void onResponse(Call<List<Recipes>> call, Response<List<Recipes>> response) {
-                if (response.body() != null) {
-                    recipesList.addAll(response.body());
-                    bindData();
-
-                    if (progressDialog != null && progressDialog.isShowing())
-                        progressDialog.dismiss();
-                    //Toast.makeText(getApplicationContext(), "Data is received!", Toast.LENGTH_LONG).show();
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Recipes>> call, Throwable t) {
-                if (progressDialog != null && progressDialog.isShowing())
-                    progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "ERROR : Fail to receive data!", Toast.LENGTH_LONG).show();
-                System.out.println("Fail: " + t.getMessage());
-
-            }
-        });
-    }
-
-    private void bindData() {
-        if (recipesList.size() > 0) {
-            Glide.with(this).load(recipesList.get(0).getRecipeImage())
-                    .placeholder(R.drawable.simple_img)
-                    .into(recipeImage);
-
-            tv_recipeName.setText(recipesList.get(0).getRecipeName());
-            recipeDescription = recipesList.get(0).getRecipeDescription() + "\n\n";
-
-            tv_recipeDetail.setText(recipeDescription);
-
-            itemFavorites = db.getRecipe(recipesList.get(0).getRecipeId());
-            if (itemFavorites.size() == 0) {
-                img_fav.setImageResource(R.drawable.ic_favorite_outline_white);
-            } else {
-                img_fav.setImageResource(R.drawable.ic_favorite_white);
-
-            }
-
-
+    private void updateFavCount(boolean view) {
+        Call<JsonObject> callRecipe;
+        if (view) {
+            callRecipe = APIClient.getService().create(APIInterface.class)
+                    .updateRecipeView(recipeList.get(0), 1);
+        } else {
+            callRecipe = APIClient.getService().create(APIInterface.class)
+                    .updateRecipeView(recipeList.get(0), 0);
         }
-    }
 
-    private void updateFavCount() {
-        Call<ResponseBody> callRecipe = APIClient.getService().create(APIInterface.class)
-                .updateRecipeView(recipesList.get(0));
-        callRecipe.enqueue(new Callback<ResponseBody>() {
+        callRecipe.enqueue(new Callback<JsonObject>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                //Toast.makeText(getApplicationContext(), response.message(), Toast.LENGTH_LONG).show();
-                Log.v("Upload", "success");
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//                Toast.makeText(context, response.message(), Toast.LENGTH_LONG).show();
+                Log.i(TAG, String.valueOf(response.body()));
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "ERROR : Fail to receive data!", Toast.LENGTH_LONG).show();
-                System.out.println("Fail: " + t.getMessage());
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+//                Toast.makeText(context, "ERROR : Fail to receive data!", Toast.LENGTH_LONG).show();
+                Log.i(TAG, "fail:" + t.getMessage());
 
             }
         });
     }
-
 
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
@@ -277,44 +219,6 @@ public class RecipesDetailActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(menuItem);
         }
         return true;
-    }
-
-    private void loadAdMobBannerAd(){
-        adView = (AdView)findViewById(R.id.detail_adView);
-        CardView adCardView = (CardView)findViewById(R.id.cv_detail_ads);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
-        adView.setAdListener(new AdListener(){
-            @Override
-            public void onAdClosed() {
-                super.onAdClosed();
-            }
-
-            @Override
-            public void onAdFailedToLoad(LoadAdError loadAdError) {
-                super.onAdFailedToLoad(loadAdError);
-                adCardView.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAdOpened() {
-                super.onAdOpened();
-            }
-
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                adCardView.setVisibility(View.VISIBLE);
-            }
-
-        });
-
-        adCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Toast.makeText(getApplicationContext(), "AD Clicked!", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 }

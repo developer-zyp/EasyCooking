@@ -7,63 +7,17 @@
     tools:context="com.proton.easycooking.fragments.FavoriteFragment">
 
     <LinearLayout
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:id="@+id/grid_layout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grey_10"
-            android:visibility="visible">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="60dp"
-                android:scrollbars="none" />
-
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/no_network"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone">
-
-            <include
-                layout="@layout/layout_no_network"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/no_item"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_no_item" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:gravity="center"
-                android:text="No Favorites Found!"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-
-
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:paddingBottom="60dp"
+            android:scrollbars="none" />
 
     </LinearLayout>
 

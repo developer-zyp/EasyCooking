@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AdminActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rdoR"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Recipe" />
+
+                <RadioButton
+                    android:id="@+id/rdoC"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category" />
+
+                <RadioButton
+                    android:id="@+id/rdoP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Post" />
+
+                <RadioButton
+                    android:id="@+id/rdoSet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Set" />
+
+                <RadioButton
+                    android:id="@+id/rdoSnack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Snack" />
+
+            </RadioGroup>
+
+            <EditText
+                android:id="@+id/edtId"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_border"
+                android:hint="Id"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:padding="5dp"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/edtName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_border"
+                android:hint="Name"
+                android:inputType="textMultiLine"
+                android:padding="5dp"
+                android:textSize="18sp" />
+
+            <Spinner
+                android:id="@+id/spnCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_border"
+                android:minHeight="40dp" />
+
+            <Spinner
+                android:id="@+id/spnPost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_border"
+                android:minHeight="40dp" />
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scroll_desc"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:background="@drawable/bg_border"
+                android:scrollbars="vertical">
+
+                <EditText
+                    android:id="@+id/edtDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="Description"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:overScrollMode="always"
+                    android:padding="5dp"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical" />
+
+            </androidx.core.widget.NestedScrollView>
+
+
+            <EditText
+                android:id="@+id/edtImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_border"
+                android:focusable="false"
+                android:hint="ImageLink"
+                android:inputType="none"
+                android:minLines="1"
+                android:padding="5dp" />
+
+            <ImageView
+                android:id="@+id/imgUpload"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="@color/grey_10"
+                app:srcCompat="@drawable/simple_img1" />
+
+            <Button
+                android:id="@+id/btnUploadImg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Upload Img" />
+
+            <Button
+                android:id="@+id/btnDeleteImg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete Upload Img" />
+
+            <Button
+                android:id="@+id/btnUpload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

@@ -14,59 +14,52 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.proton.easycooking.fragments.CaloriesAmtFragment;
-import com.proton.easycooking.fragments.TodaySpecialFragment;
-import com.proton.easycooking.GlobalClass;
 import com.proton.easycooking.MainActivity;
 import com.proton.easycooking.R;
+import com.proton.easycooking.fragments.TodaySpecialFragment;
 import com.proton.easycooking.models.Category;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.ViewHolder> {
 
-    Category itemCategory;
     private final Context context;
-    private List<Category> arrayCategory;
-    private int selectFragment = 1;
+    private final int layoutId;
+    private final int selectFragment;
+    private List<Category> categoryList = new ArrayList<>();
+    private Category itemCategory;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
         TextView textViewName;
         ImageView imageView;
         CardView cardView;
 
         public ViewHolder(View view) {
             super(view);
-
             this.textViewName = (TextView) view.findViewById(R.id.txtName);
             this.imageView = (ImageView) view.findViewById(R.id.imageView);
             this.cardView = (CardView) view.findViewById(R.id.cv_Category);
-
         }
-
     }
 
-    public AdapterCategory(Context mContext, List<Category> arrayItemCategory, int selectFragment) {
+    public AdapterCategory(Context mContext, int layoutId, int selectFragment) {
         this.context = mContext;
-        this.arrayCategory = arrayItemCategory;
+        this.layoutId = layoutId;
         this.selectFragment = selectFragment;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lsv_item_category, parent, false);
-
-        GlobalClass.categoryId = 0;
-
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        itemCategory = arrayCategory.get(position);
+        itemCategory = categoryList.get(position);
 
         holder.textViewName.setText(itemCategory.getCategoryName());
 
@@ -76,45 +69,46 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.ViewHo
                     .into(holder.imageView);
         }
 
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        holder.cardView.setOnClickListener(view -> {
 
-                itemCategory = arrayCategory.get(position);
-                int catId = Integer.parseInt(itemCategory.getCategoryId());
-//                Toast.makeText(context, "Category Id : " + catId + "\nName : " +
-//                        itemCategory.getCategoryName(), Toast.LENGTH_LONG).show();
+            itemCategory = categoryList.get(position);
+            int catId = Integer.parseInt(itemCategory.getCategoryId());
 
-                GlobalClass.categoryId = catId;
-
-                FragmentManager fragmentManager = MainActivity.fragmentManager;
-                if (selectFragment == 1) {
-
+            FragmentManager fragmentManager = MainActivity.fragmentManager;
+            switch (selectFragment) {
+                case 1:
+                case 3:
+                case 4:
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, new TodaySpecialFragment())
+                            .add(R.id.fragment_container, new TodaySpecialFragment(catId, 0))
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .addToBackStack(null)
                             .commit();
-                }
-                else {
+                    break;
+                case 2:
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, new CaloriesAmtFragment())
+                            .add(R.id.fragment_container, new TodaySpecialFragment(0, catId))
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                             .addToBackStack(null)
                             .commit();
-                }
-
+//                fragmentManager.beginTransaction()
+//                        .replace(R.id.fragment_container, new CaloriesAmtFragment(catId))
+//                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+//                        .addToBackStack(null)
+//                        .commit();
+                    break;
             }
+
         });
     }
 
     @Override
     public int getItemCount() {
-        return arrayCategory.size();
+        return categoryList.size();
     }
 
     public void setCategoryList(List<Category> categoryList) {
-        arrayCategory = categoryList;
+        this.categoryList = categoryList;
         notifyDataSetChanged();
     }
 

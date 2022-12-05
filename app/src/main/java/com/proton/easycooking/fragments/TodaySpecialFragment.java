@@ -2,15 +2,6 @@ package com.proton.easycooking.fragments;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,17 +13,23 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.proton.easycooking.APIClient;
 import com.proton.easycooking.APIInterface;
-import com.proton.easycooking.Config;
+import com.proton.easycooking.AppConfig;
+import com.proton.easycooking.AppTools;
 import com.proton.easycooking.DatabaseHelper;
-import com.proton.easycooking.GlobalClass;
-import com.proton.easycooking.MainActivity;
-import com.proton.easycooking.NetworkTask;
 import com.proton.easycooking.R;
 import com.proton.easycooking.adapters.AdapterSpecial;
-import com.proton.easycooking.models.AppConfig;
-import com.proton.easycooking.models.Recipes;
+import com.proton.easycooking.models.AppSetting;
+import com.proton.easycooking.models.Recipe;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -49,14 +46,25 @@ import retrofit2.Response;
 
 public class TodaySpecialFragment extends Fragment {
 
+    ArrayList<AppSetting> appSettingList;
+    private int categoryId = 0;
+    private int postId = 0;
+    private List<Recipe> dataRecipe;
+
     //region Variables
     private SwipeRefreshLayout swipeRefreshLayout = null;
     private LinearLayout rootLayout;
     private RelativeLayout no_network_Layout, grid_layout;
 
-    private ArrayList<Recipes> dataRecipe;
+    public TodaySpecialFragment() {
+        // Required empty public constructor
+    }
 
-    ArrayList<AppConfig> appConfigList;
+    public TodaySpecialFragment(int categoryId, int postId) {
+        this.categoryId = categoryId;
+        this.postId = postId;
+    }
+
     RecyclerView recyclerView;
     AdapterSpecial adapterSpecial;
 
@@ -69,87 +77,79 @@ public class TodaySpecialFragment extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_today_special, container, false);
 
-        rootLayout = (LinearLayout) fragmentView.findViewById(R.id.rootLayout);
+//        rootLayout = fragmentView.findViewById(R.id.rootLayout);
+
 //        if (Config.ENABLE_RTL_MODE) {
 //            rootLayout.setRotationY(180);
 //        }
 
         apiInterface = APIClient.getService().create(APIInterface.class);
-        if (GlobalClass.categoryId > 0) {
-            ((MainActivity) getContext()).setTitle("Recipes");
+        if (categoryId > 0 || postId > 0) {
+            //((MainActivity) getContext()).setTitle("Recipes");
+            setHasOptionsMenu(false);
 
         } else {
-            ((MainActivity) getContext()).setTitle("Today Special");
+            //((MainActivity) getContext()).setTitle("Today Special");
+            setHasOptionsMenu(true);
 
         }
 
-        no_network_Layout = (RelativeLayout) fragmentView.findViewById(R.id.no_network);
-        grid_layout = (RelativeLayout) fragmentView.findViewById(R.id.grid_layout);
+        no_network_Layout = fragmentView.findViewById(R.id.no_network);
+        grid_layout = fragmentView.findViewById(R.id.grid_layout);
 
         //SwipeRefreshLayout
-        swipeRefreshLayout = (SwipeRefreshLayout) fragmentView.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
+        swipeRefreshLayout = fragmentView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
         //RecyclerView
-        recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+        recyclerView = fragmentView.findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        appConfigList = new ArrayList<>();
-        //dataRecipe.clear();
-        dataRecipe = new ArrayList<Recipes>();
+        appSettingList = new ArrayList<>();
+        dataRecipe = new ArrayList<>();
         adapterSpecial = new AdapterSpecial(getActivity(), dataRecipe);
         recyclerView.setAdapter(adapterSpecial);
 
         swipeRefreshLayout.setRefreshing(true);
 
-        new NetworkTask().execute(APIClient.BASE_URL);
+        new Handler().post(() -> {
+            if (AppTools.isNetworkAvailable(getContext())) {
+                getRecipeList(false);
+                no_network_Layout.setVisibility(View.GONE);
+                grid_layout.setVisibility(View.VISIBLE);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                if (NetworkTask.checkServerConnection) {
-                    getRecipeList(false);
-                    no_network_Layout.setVisibility(View.GONE);
-                    grid_layout.setVisibility(View.VISIBLE);
-
-                } else {
-                    grid_layout.setVisibility(View.GONE);
-                    no_network_Layout.setVisibility(View.VISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+            } else {
+                grid_layout.setVisibility(View.GONE);
+                no_network_Layout.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
             }
-        }, 1500);
+        });
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 try {
-                    new NetworkTask().execute(APIClient.BASE_URL);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
+                    new Handler().postDelayed(() -> {
+
+                        if (AppTools.isNetworkAvailable(getContext())) {
+                            getRecipeList(false);
+                            no_network_Layout.setVisibility(View.GONE);
+                            grid_layout.setVisibility(View.VISIBLE);
+                        } else {
 
                             swipeRefreshLayout.setRefreshing(false);
-                            if (NetworkTask.checkServerConnection) {
-                                getRecipeList(false);
-                                no_network_Layout.setVisibility(View.GONE);
-                                grid_layout.setVisibility(View.VISIBLE);
+                            if (dataRecipe.size() > 0) {
+                                Toast.makeText(getContext(), "No Internet Connection!",
+                                        Toast.LENGTH_SHORT).show();
                             } else {
-                                if (dataRecipe.size() > 0) {
-                                    Toast.makeText(getContext(), "No Internet Connection!",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    grid_layout.setVisibility(View.GONE);
-                                    no_network_Layout.setVisibility(View.VISIBLE);
-                                }
-
+                                grid_layout.setVisibility(View.GONE);
+                                no_network_Layout.setVisibility(View.VISIBLE);
                             }
 
-
                         }
+
                     }, 1000);
                 } catch (Exception ex) {
 
@@ -158,27 +158,27 @@ public class TodaySpecialFragment extends Fragment {
             }
         });
 
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
 
         return fragmentView;
     }
 
     private void getRecipeList(Boolean isRefresh) {
-        Call<List<Recipes>> callRecipe;
-        if (GlobalClass.categoryId > 0) {
-            callRecipe = apiInterface.getRecipeByCategoryId(GlobalClass.categoryId);
+        Call<List<Recipe>> callRecipe;
+        if (categoryId > 0) {
+            callRecipe = apiInterface.getRecipeByCategoryId(categoryId);
+        } else if (postId > 0) {
+            callRecipe = apiInterface.getRecipeByPostId(postId);
         } else {
             callRecipe = apiInterface.getRecipeBySpecialIds(getRandom(isRefresh));
         }
-        callRecipe.enqueue(new Callback<List<Recipes>>() {
+        callRecipe.enqueue(new Callback<List<Recipe>>() {
             @Override
-            public void onResponse(Call<List<Recipes>> call, Response<List<Recipes>> response) {
+            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.body() != null) {
-                    dataRecipe.clear();
-                    dataRecipe.addAll(response.body());
-
-                    adapterSpecial.setRecipeList(response.body());
-
+                    dataRecipe = response.body();
+                    adapterSpecial.setRecipeList(dataRecipe);
                     swipeRefreshLayout.setRefreshing(false);
                     //Toast.makeText(getContext(), dataRecipe.size() + " data is received!", Toast.LENGTH_SHORT).show();
 
@@ -186,9 +186,9 @@ public class TodaySpecialFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<Recipes>> call, Throwable t) {
+            public void onFailure(Call<List<Recipe>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getContext(), "ERROR : Fail to receive data!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "ERROR : Fail to load data!", Toast.LENGTH_SHORT).show();
                 System.out.println("Fail: " + t.getMessage());
 
             }
@@ -206,27 +206,27 @@ public class TodaySpecialFragment extends Fragment {
         String recipes_date = db.getNewRecipesId("100");
 
         if (recipes_date == null) {
-            for (int i = 0; i < Config.NUM_OF_SPECIAL_RECIPES; i++) {
+            for (int i = 0; i < AppConfig.NUM_OF_SPECIAL_RECIPES; i++) {
 
-                random = new Random().nextInt(Config.NUM_OF_MAX_RECIPES) + 1; // [0, 60] + 20 => [20, 80]
+                random = new Random().nextInt(AppConfig.NUM_OF_MAX_RECIPES) + 1; // [0, 60] + 20 => [20, 80]
                 while (result.toString().contains(Integer.toString(random))) {
-                    random = new Random().nextInt(Config.NUM_OF_MAX_RECIPES) + 1;
+                    random = new Random().nextInt(AppConfig.NUM_OF_MAX_RECIPES) + 1;
                 }
 
                 result.append(",").append(random);
             }
 
-            AppConfig newRecipesId = new AppConfig("100", nowDate, result.toString());
+            AppSetting newRecipesId = new AppSetting("100", nowDate, result.toString());
             db.addAppConfig(newRecipesId);
         } else {
             if (recipes_date.equals(nowDate) && !isRefresh) {
                 result.append(db.getAppConfig(nowDate));
             } else {
-                for (int i = 0; i < Config.NUM_OF_SPECIAL_RECIPES; i++) {
+                for (int i = 0; i < AppConfig.NUM_OF_SPECIAL_RECIPES; i++) {
 
-                    random = new Random().nextInt(Config.NUM_OF_MAX_RECIPES) + 1; // [0, 60] + 20 => [20, 80]
+                    random = new Random().nextInt(AppConfig.NUM_OF_MAX_RECIPES) + 1; // [0, 60] + 20 => [20, 80]
                     while (result.toString().contains(Integer.toString(random))) {
-                        random = new Random().nextInt(Config.NUM_OF_MAX_RECIPES) + 1;
+                        random = new Random().nextInt(AppConfig.NUM_OF_MAX_RECIPES) + 1;
                     }
 
                     result.append(",").append(random);
@@ -237,7 +237,7 @@ public class TodaySpecialFragment extends Fragment {
         }
 
         //Toast.makeText(getContext(), result, Toast.LENGTH_LONG).show();
-        return "(0" + result + ")";
+        return "0" + result;
     }
 
     private String getDateTime() {
@@ -279,31 +279,26 @@ public class TodaySpecialFragment extends Fragment {
 
     }
 
-    private void refreshRecipes(){
+    private void refreshRecipes() {
 
-        new NetworkTask().execute(APIClient.BASE_URL);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
+        new Handler().postDelayed(() -> {
+            if (AppTools.isNetworkAvailable(getContext())) {
+                getRecipeList(true);
+                no_network_Layout.setVisibility(View.GONE);
+                grid_layout.setVisibility(View.VISIBLE);
+            } else {
                 swipeRefreshLayout.setRefreshing(false);
-                if (NetworkTask.checkServerConnection) {
-                    getRecipeList(true);
-                    no_network_Layout.setVisibility(View.GONE);
-                    grid_layout.setVisibility(View.VISIBLE);
+                if (dataRecipe.size() > 0) {
+                    Toast.makeText(getContext(), "No Internet Connection!",
+                            Toast.LENGTH_SHORT).show();
                 } else {
-                    if (dataRecipe.size() > 0) {
-                        Toast.makeText(getContext(), "No Internet Connection!",
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        grid_layout.setVisibility(View.GONE);
-                        no_network_Layout.setVisibility(View.VISIBLE);
-                    }
-
+                    grid_layout.setVisibility(View.GONE);
+                    no_network_Layout.setVisibility(View.VISIBLE);
                 }
 
-
             }
-        }, 1000);
+
+
+        }, 0);
     }
 }

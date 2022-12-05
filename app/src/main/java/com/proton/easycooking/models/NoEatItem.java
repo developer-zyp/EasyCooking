@@ -1,31 +1,20 @@
 package com.proton.easycooking.models;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class NoEatItem {
-    @SerializedName("Id")
-    @Expose
+public class NoEatItem implements Serializable {
     private String id;
-    @SerializedName("Items")
-    @Expose
     private String items;
-    @SerializedName("Action")
-    @Expose
     private String action;
-    @SerializedName("Status")
-    @Expose
     private String status;
 
     /**
      * No args constructor for use in serialization
-     *
      */
     public NoEatItem() {
     }
 
     /**
-     *
      * @param action
      * @param id
      * @param items
@@ -70,4 +59,5 @@ public class NoEatItem {
     public void setStatus(String status) {
         this.status = status;
     }
+
 }

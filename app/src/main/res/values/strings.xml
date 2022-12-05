@@ -1,59 +1,100 @@
 <resources>
-    <string name="app_name">Easy Cooking</string>
+    <string name="app_name">ချက်ကြည့်</string>
     <string name="app_version">Version </string>
     <string name="app_about">
-        ဟင်းချက်နည်းများစွာကို လွယ်လွယ်ကူကူရှာဖွေပြီး အရသာရှိသောဟင်းလျာများကို လေ့လာချက်ပြုတ်နိုင်ရန်ရည်ရွယ်ပါသည်။
+        ဟင်းချက်နည်းများစွာကို လွယ်လွယ်ကူကူရှာဖွေပြီး အရသာရှိသောဟင်းလျာများကို လေ့လာချက်ပြုတ်နိုင်ပါသည်။
         \nကိုယ်အလေးချိန်ထိန်းသိမ်းရန် သို့မဟုတ် လျော့ချနိုင်ရန် မိမိစားသုံးသော အစားအစာများတွင်ပါဝင်သော ကယ်လိုရီပမာဏများကိုပါလေ့လာသိရှိနိုင်ပါသည်။
         \nတွဲဖက်၍မစားသင့်သောအစားအစာများကိုလည်း တစ်ပါတည်းကြည့်ရှုနိုင်ပါသည်။
         \nဟင်းချက်နည်းများသည် Social Media များပေါ်မှ ကူးယူဖော်ပြထားသောကြောင့်မူရင်းရေးသားသူများကို အသိအမှတ်ပြု Credits ပေးပါသည်။
     </string>
     <string name="app_contact">
-        Developed by NEXTS
-        \nContact us : nexts.development@gmail.com
-    </string>မ
+        Developed by Proton App Dev
+    </string>
+    <string name="app_start">
+        ချက်နည်း၊ ပြုတ်နည်း၊ မုန့်လုပ်နည်း
+    </string>
+    <string name="app_fix">
+        \nApp and Server in maintenance!\n\nApp နှင့် Server ကိုပြုပြင်နေပါသည်။ မကြာမီ ပြန်လည်ဝင်ရောက်နိုင်ပါသည်။\n
+    </string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <!--    navigation-->
     <string name="nav_Special">Today Special</string>
-    <string name="nav_Category">Category</string>
-    <string name="nav_Calorie">Calories</string>
-    <string name="nav_Noeat">NEVER Eat Together</string>
-    <string name="Favourites">Favourites</string>
+    <string name="nav_Category">ဟင်းချက်နည်းများ</string>
+    <string name="nav_Calorie">ကယ်လိုရီ</string>
+    <string name="nav_Noeat">တွဲဖက်မစားသင့်သော</string>
+    <string name="Favourites">ကြိုက်နှစ်သက်သော</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="share_text">I Would like to share this App with you. Here You Can Download This Application from PlayStore.</string>
+    <string name="share_text">I Would like to share this App with you.\n Here You Can Download This Application from PlayStore.\n </string>
 
     <!--    recipe detail-->
     <string name="Ingredients">ပါဝင်ပစ္စည်းများ</string>
     <string name="Method">ချက်ပြုတ်ပြင်ဆင်ပုံ</string>
+    <string name="new_version"> New version is available!\n\nပိုမိုကောင်းမွန်တဲ့ လုပ်ဆောင်မှုတွေ အသုံးပြုနိုင်ဖို့ ဗားရှင်းအသစ်ကို Download ရယူပါ။</string>
 
     <!--    adMob banner and interstitial id-->
+    <!-- ca-app-pub-3940256099942544/6300978111 -->
     <string name="adMob_banner_id">ca-app-pub-6893847210970586/2908864676</string>
     <string name="adMob_interstitial_id">ca-app-pub-6893847210970586/7969619663</string>
     <string name="adMob_reward_id">ca-app-pub-6893847210970586/2469590361</string>
 
     <!--    calories calculator -->
     <string name="recalculate">ပြန်တွက်ရန်</string>
-    <string name="calculate">တွက်ချက်ရန်</string>
+    <string name="calculate">ကယ်လိုရီတွက်ရန်</string>
     <string name="cal_calcDesc">ကိုယ်အလေးချိန်လျှော့ချရန် သို့မဟုတ် တစ်နေ့လျှင်ကယ်လိုရီမည်မျှစားသင့်သည်ကိုတွက်ချက်ရန်သင်၏အသေးစိတ်အချက်အလက်များကိုဖြည့်ပါ။</string>
     <string name="cal_est"># နေ့စဉ်စားသုံးရန်ကယ်လိုရီပမာဏ #</string>
     <string name="cal_estDesc">ဤဂဏန်းတွက်စက်သည်သတင်းအချက်အလက်အတွက်သာရည်ရွယ်ပြီးကျန်းမာရေးဆုံးဖြတ်ချက်မချမီကျန်းမာရေးစောင့်ရှောက်မှုပေးသူနှင့်ဆွေးနွေးသင့်သည်။
-    ကယ်လိုရီပါဝင်မှုများကို တစ်ဖက်ပါ Page တွင် အမျိုးအစားအလိုက် ကြည့်ရှုနိုင်ပါသည်။</string>
+    ကယ်လိုရီပါဝင်မှုများကို ပါဝင်မှု တွင် အမျိုးအစားအလိုက် ကြည့်ရှုနိုင်ပါသည်။</string>
     <string name="cal_normalResult">ကိုယ်အလေးချိန်ထိန်းသိမ်းရန်</string>
     <string name="cal_loseResult">ကိုယ်အလေးချိန်လျော့ချရန်</string>
     <string name="cal_moreResult">ကိုယ်အလေးချိန်တိုးရန်</string>
     <string name="cal_80">80% (၁ ပတ်လျှင် ၁ ပေါင်)</string>
     <string name="cal_60">120% (၁ ပတ်လျှင် ၁ ပေါင်)</string>
+    <string name="gram_kt">၁၀၀ ဂရမ် = ၆ ကျပ်သား ခန့်</string>
+    <string name="cal_dialog_need">ကယ်လိုရီတွက်ရန် လိုအပ်သော အချက်အလက်အားလုံးကိုဖြည့်ပါ။</string>
+    <string name="cal_dialog_invalid">ကယ်လိုရီတွက်ရန် အသက် ၁၅ နှစ်အထက်၊ ပေါင် ၅၀ အထက် ရှိရပါမည်။</string>
 
     <!--    Tabs-->
     <string name="cal_amount">ပါဝင်မှု</string>
     <string name="cal_calculator">တွက်ချက်</string>
 
     <!--    adclick-->
-    <string name="dialog_adview">Click 👇 If You ❤️ Me</string>
+    <string name="dialog_adview">Thank You!</string>
+    <string name="no_connection">No Connection with Server!\nPull to Refresh.</string>
+    <string name="share">Share</string>
+    <string name="rate_app">အကြံပြုရန်</string>
+    <string name="about_app">About App</string>
+    <string name="setmenu">ဟင်းအတွဲအစပ်များ</string>
+    <string name="recipes">ဟင်းချက်နည်းများ</string>
+    <string name="snacks">မုန့်လုပ်နည်းများ</string>
+    <string name="knowledge">ဟင်းချက်သုတ</string>
+    <string name="see_all">View All</string>
 
+    <string name="gender">ကျား/မ</string>
+    <string name="male">ကျား</string>
+    <string name="female">မ</string>
+    <string name="weight">ကိုယ်အလေးချိန်</string>
+    <string name="pounds_50_250">ပေါင် (50–250)</string>
+    <string name="activity">လေ့ကျင့်ခန်း</string>
+    <string name="select">ပြုလုပ်မှု …</string>
+    <string name="age">အသက်</string>
+    <string name="years_15_60">(15–60) နှစ်</string>
+    <string name="height">အရပ်</string>
+    <string name="feet_4_7">(4–7) ပေ</string>
+    <string name="inches_1_11">(1–11) လက်မ</string>
+    <string name="save_me">Save Me</string>
+    <string name="todo">TODO</string>
+    <string name="darkmode">DarkMode</string>
+    <string name="admin">Admin</string>
+    <string-array name="cal_array">
+        <item>အနည်းငယ် (သို့) မလုပ်ပါ။</item>
+        <item>တစ်ပတ် ၁-၃ ရက်လုပ်ပါသည်။</item>
+        <item>တစ်ပတ် ၃-၅ ရက်လုပ်ပါသည်။</item>
+        <item>တစ်ပတ် ၆-၇ ရက်လုပ်ပါသည်။</item>
+    </string-array>
 
 </resources>

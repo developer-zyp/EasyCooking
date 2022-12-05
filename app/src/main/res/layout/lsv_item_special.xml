@@ -9,12 +9,10 @@
         android:id="@+id/cv_Special"
         android:layout_width="match_parent"
         android:layout_height="110dp"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="5dp"
-        app:cardElevation="2dp"
         app:cardUseCompatPadding="true">
 
         <LinearLayout
@@ -27,44 +25,64 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:src="@drawable/simple_img"
-                android:scaleType="fitXY"/>
+                android:scaleType="centerCrop"
+                android:src="@drawable/simple_img1" />
 
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
                 android:gravity="center"
-                android:padding="10dp">
+                android:padding="8dp">
 
                 <TextView
                     android:id="@+id/tv_Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:fontFamily="@font/pyidaungsu"
-                    android:text="Simple"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/black" />
+                    android:layout_above="@+id/iv_Fav"
+                    android:layout_alignParentTop="true"
+                    android:maxLines="2"
+                    android:text="@string/app_about"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="16sp" />
 
                 <ImageView
-                    android:id="@+id/iv_Seen"
+                    android:id="@+id/iv_Fav"
                     android:layout_width="23dp"
                     android:layout_height="23dp"
                     android:layout_alignParentBottom="true"
                     android:src="@drawable/ic_favorite_pink" />
 
                 <TextView
-                    android:id="@+id/tv_SeenCount"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_FavCount"
+                    android:layout_width="90dp"
                     android:layout_height="23dp"
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="5dp"
-                    android:layout_toEndOf="@+id/iv_Seen"
-                    android:fontFamily="@font/pyidaungsu"
-                    android:gravity="center"
-                    android:text="1"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                    android:layout_toEndOf="@+id/iv_Fav"
+                    android:text="999"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/iv_View"
+                    android:layout_width="23dp"
+                    android:layout_height="23dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toEndOf="@+id/tv_FavCount"
+                    android:src="@drawable/ic_seen" />
+
+                <TextView
+                    android:id="@+id/tv_ViewCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="23dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="5dp"
+                    android:layout_toEndOf="@+id/iv_View"
+                    android:text="999"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textSize="16sp" />
 
             </RelativeLayout>
         </LinearLayout>

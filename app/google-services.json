@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1076540533112:android:5facfa46194685bd99408d",
         "android_client_info": {
-          "package_name": "com.proton.easycooking"
+          "package_name": "com.proton.easycooking.debug"
         }
       },
       "oauth_client": [
@@ -32,7 +32,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-6893847210970586~6381700666"
     }
   ],
   "configuration_version": "1"

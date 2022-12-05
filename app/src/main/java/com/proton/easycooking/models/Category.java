@@ -1,38 +1,23 @@
 package com.proton.easycooking.models;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Category {
-
-    @SerializedName("categoryId")
-    @Expose
+public class Category implements Serializable {
     private String categoryId;
-    @SerializedName("categoryName")
-    @Expose
     private String categoryName;
-    @SerializedName("categoryImage")
-    @Expose
     private String categoryImage;
+    private String type;
 
-    /**
-     * No args constructor for use in serialization
-     *
-     */
     public Category() {
     }
 
-    /**
-     *
-     * @param categoryImage
-     * @param categoryName
-     * @param categoryId
-     */
-    public Category(String categoryId, String categoryName, String categoryImage) {
+
+    public Category(String categoryId, String categoryName, String categoryImage, String type) {
         super();
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.categoryImage = categoryImage;
+        this.type = type;
     }
 
     public String getCategoryId() {

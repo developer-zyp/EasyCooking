@@ -8,8 +8,8 @@
         android:id="@+id/iv_caloriesAmt"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/kfc" />
+        android:scaleType="fitXY"
+        android:src="@drawable/simple_img1" />
 
 
 </LinearLayout>

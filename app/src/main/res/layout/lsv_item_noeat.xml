@@ -9,11 +9,10 @@
         android:id="@+id/cv_NoEat"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
-        android:elevation="5dp"
         android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        app:cardBackgroundColor="@color/amber_500"
+        app:cardBackgroundColor="@color/orange_300"
         app:cardCornerRadius="5dp"
         app:cardUseCompatPadding="true">
 

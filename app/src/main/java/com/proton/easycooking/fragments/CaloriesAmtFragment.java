@@ -1,28 +1,21 @@
 package com.proton.easycooking.fragments;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Handler;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.proton.easycooking.APIClient;
 import com.proton.easycooking.APIInterface;
-import com.proton.easycooking.GlobalClass;
-import com.proton.easycooking.MainActivity;
-import com.proton.easycooking.NetworkTask;
+import com.proton.easycooking.AppTools;
 import com.proton.easycooking.R;
 import com.proton.easycooking.adapters.AdapterCaloriesAmt;
 import com.proton.easycooking.models.Category;
@@ -37,14 +30,10 @@ import retrofit2.Response;
 
 public class CaloriesAmtFragment extends Fragment {
 
-    private LinearLayout rootLayout;
-    private RelativeLayout grid_layout;
+    private SwipeRefreshLayout swipeRefreshLayout = null;
 
-    private ArrayList<Category> dataCaloriesAmt;
     RecyclerView recyclerView;
     AdapterCaloriesAmt adapterCaloriesAmt;
-
-    ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,72 +41,54 @@ public class CaloriesAmtFragment extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_calories_amt, container, false);
 
-        rootLayout = (LinearLayout) fragmentView.findViewById(R.id.rootLayout);
+        swipeRefreshLayout = fragmentView.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
-//        if (Config.ENABLE_RTL_MODE) {
-//            rootLayout.setRotationY(180);
-//        }
-
-        grid_layout = (RelativeLayout) fragmentView.findViewById(R.id.grid_layout);
-
-        recyclerView = (RecyclerView) fragmentView.findViewById(R.id.recycler_view);
+        recyclerView = fragmentView.findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        dataCaloriesAmt = new ArrayList<Category>();
+        ArrayList<Category> dataCaloriesAmt = new ArrayList<>();
         adapterCaloriesAmt = new AdapterCaloriesAmt(getActivity(), dataCaloriesAmt);
         recyclerView.setAdapter(adapterCaloriesAmt);
 
-        progressDialog = new ProgressDialog(getContext(), R.style.MyProgressDialogStyle);
-        progressDialog.setMessage("Loading ...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        new NetworkTask().execute(APIClient.BASE_URL);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (NetworkTask.checkServerConnection) {
-                    getCaloriesAmtList();
-                    progressDialog.dismiss();
-
-                } else {
-                    progressDialog.dismiss();
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                    alertDialog.setTitle("Warning!");
-                    alertDialog.setMessage("No Internet Connection.");
-                    alertDialog.setPositiveButton("RETRY", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            MainActivity.fragmentManager.beginTransaction()
-                                    .replace(R.id.fragment_container, new CaloriesAmtFragment())
-                                    //.addToBackStack(null)
-                                    .commit();
-                        }
-                    });
-                    alertDialog.show();
-
-                }
+        swipeRefreshLayout.setRefreshing(true);
+        new Handler().post(() -> {
+            if (AppTools.isNetworkAvailable(getContext())) {
+                getCaloriesAmtList();
+            } else {
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getContext(), "No Internet Connection!", Toast.LENGTH_SHORT).show();
 
             }
-        }, 1000);
+
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            new Handler().post(() -> {
+                if (AppTools.isNetworkAvailable(getContext())) {
+                    getCaloriesAmtList();
+                } else {
+                    swipeRefreshLayout.setRefreshing(false);
+                    Toast.makeText(getContext(), "Check your connection!\n Pull to refresh.", Toast.LENGTH_SHORT).show();
+                }
+
+            });
+        });
 
 
         return fragmentView;
     }
 
     private void getCaloriesAmtList() {
-        Call<List<Category>> callRecipe = APIClient.getService().create(APIInterface.class).getCaloriesAmtById(GlobalClass.categoryId);
-
+        Call<List<Category>> callRecipe = APIClient.getService().create(APIInterface.class).getCaloriesAmt();
         callRecipe.enqueue(new Callback<List<Category>>() {
             @Override
             public void onResponse(Call<List<Category>> call, Response<List<Category>> response) {
-                if (response.body() != null) {
+                if (response.isSuccessful() && response.body() != null) {
                     adapterCaloriesAmt.setCaloriesAmtList(response.body());
-
-                    progressDialog.dismiss();
+                    swipeRefreshLayout.setRefreshing(false);
                     //Toast.makeText(getContext(), dataCategory.size() + " data is received!", Toast.LENGTH_SHORT).show();
 
                 }
@@ -125,13 +96,12 @@ public class CaloriesAmtFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Category>> call, Throwable t) {
-                progressDialog.dismiss();
-                Toast.makeText(getContext(), "ERROR : Fail to receive data!", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getContext(), "ERROR : Fail to load data!", Toast.LENGTH_SHORT).show();
                 System.out.println("Fail: " + t.getMessage());
 
             }
         });
-
 
 
     }

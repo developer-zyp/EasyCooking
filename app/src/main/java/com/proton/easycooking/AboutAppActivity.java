@@ -1,15 +1,18 @@
 package com.proton.easycooking;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.TextView;
-
-import com.proton.easycooking.R;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AboutAppActivity extends AppCompatActivity {
 
@@ -20,14 +23,63 @@ public class AboutAppActivity extends AppCompatActivity {
 
         initToolbar();
 
-        final TextView tvName = (TextView) findViewById(R.id.tv_appname);
-        final TextView tvVersion = (TextView) findViewById(R.id.tv_appversion);
-        final TextView tvAbout = (TextView) findViewById(R.id.tv_appabout);
-        final TextView tvContact = (TextView) findViewById(R.id.tv_appcontact);
+        final TextView tvName = findViewById(R.id.tv_appname);
+        final TextView tvVersion = findViewById(R.id.tv_appversion);
+        final TextView tvAbout = findViewById(R.id.tv_appabout);
+        final TextView tvContact = findViewById(R.id.tv_appcontact);
 
-        tvVersion.setText(getResources().getString(R.string.app_version) + Config.app_version);
-        tvAbout.setText(Config.app_about);
-        tvContact.setText(Config.app_contact);
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
+
+        tvVersion.setText(getResources().getString(R.string.app_version) + " " + BuildConfig.VERSION_NAME);
+        tvAbout.setText(dbHelper.getAppConfig("app_about"));
+        tvContact.setText(dbHelper.getAppConfig("app_contact"));
+
+        tvContact.setOnLongClickListener(view -> {
+            Log.d("BUILD_TYPE", String.valueOf(com.proton.easycooking.BuildConfig.DEBUG));
+            if (BuildConfig.DEBUG) {
+                Intent intent = new Intent(AboutAppActivity.this, AdminActivity.class);
+                startActivity(intent);
+//                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+//                final EditText edittext = new EditText(this);
+//                edittext.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+//                dialog.setTitle("Enter Password :");
+//                dialog.setView(edittext);
+//
+//                dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//                        //What ever you want to do with the value
+//                        if (edittext.getText().toString().equals(getDailyPassword())) {
+//                            dialog.dismiss();
+//                            Intent intent = new Intent(AboutAppActivity.this, AdminActivity.class);
+//                            startActivity(intent);
+//                        }
+//
+//                    }
+//                });
+//
+//                dialog.show();
+            }
+            return false;
+        });
+
+    }
+
+    private String getDailyPassword() {
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
+        String currentDateTime = sdf.format(new Date());
+        char[] currentDT = currentDateTime.toCharArray();
+        int dividend = Integer.parseInt(currentDateTime);
+        int divisor = 16;
+        int quotient = 0;
+        for (char i : currentDT) {
+            divisor += Integer.parseInt(String.valueOf(i));
+        }
+
+        quotient = dividend / divisor;
+
+        Log.i("DailyPassword", quotient + ", " + dividend + ", " + divisor);
+
+        return String.valueOf(quotient);
 
     }
 
@@ -44,12 +96,9 @@ public class AboutAppActivity extends AppCompatActivity {
     }
 
     private void initToolbar() {
-        // Set a Toolbar to replace the ActionBar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // This will display an Up icon (<-), we will replace it with hamburger later
         ActionBar actionBar = getSupportActionBar();
-        // add back arrow to toolbar
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);

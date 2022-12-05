@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
@@ -7,8 +8,8 @@
         <item
             android:id="@+id/nav_today_special"
             android:checked="true"
-            android:icon="@drawable/menu_pot"
-            android:title="@string/nav_Special" />
+            android:icon="@drawable/ic_home"
+            android:title="Home" />
         <item
             android:id="@+id/nav_category"
             android:icon="@drawable/menu_category"
@@ -34,21 +35,36 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_share"
+            android:checkable="false"
             android:icon="@drawable/menu_share"
-            android:title="Share"
-            android:checkable="false"/>
+            android:title="@string/share" />
 
         <item
             android:id="@+id/nav_rate"
+            android:checkable="false"
             android:icon="@drawable/menu_rate"
-            android:title="Rate App"
-            android:checkable="false"/>
+            android:title="@string/rate_app" />
 
         <item
             android:id="@+id/nav_about"
+            android:checkable="false"
             android:icon="@drawable/menu_about"
-            android:title="About App"
-            android:checkable="false"/>
+            android:title="@string/about_app" />
+
+        <item
+            android:id="@+id/nav_admin"
+            android:checkable="false"
+            android:icon="@android:drawable/ic_lock_idle_lock"
+            android:title="@string/admin"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_darkmode"
+            android:checkable="false"
+            android:icon="@drawable/ic_renew"
+            android:title="@string/darkmode"
+            android:visible="false"
+            app:actionViewClass="android.widget.Switch" />
     </group>
 
 </menu>

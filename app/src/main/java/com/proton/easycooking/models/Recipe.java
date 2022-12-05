@@ -1,39 +1,31 @@
 package com.proton.easycooking.models;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Recipes {
-    @SerializedName("recipeId")
-    @Expose
+public class Recipe implements Serializable {
     private String recipeId;
-    @SerializedName("categoryId")
-    @Expose
     private String categoryId;
-    @SerializedName("recipeName")
-    @Expose
     private String recipeName;
-    @SerializedName("recipeDescription")
-    @Expose
     private String recipeDescription;
-    @SerializedName("recipeImage")
-    @Expose
     private String recipeImage;
-    @SerializedName("recipeView")
-    @Expose
     private String recipeView;
+    private String recipeFav;
+    private String postId;
 
-    public Recipes() {
+    public Recipe() {
     }
 
-    public Recipes(String recipeId, String categoryId, String recipeName, String recipeDescription, String recipeImage, String recipeView) {
+    public Recipe(String recipeId, String categoryId, String recipeName, String recipeDescription, String recipeImage, String recipeView, String recipeFav, String postId) {
         this.recipeId = recipeId;
         this.categoryId = categoryId;
         this.recipeName = recipeName;
         this.recipeDescription = recipeDescription;
         this.recipeImage = recipeImage;
         this.recipeView = recipeView;
+        this.recipeFav = recipeFav;
+        this.postId = postId;
     }
+
 
     public String getRecipeId() {
         return recipeId;
@@ -83,4 +75,19 @@ public class Recipes {
         this.recipeView = recipeView;
     }
 
+    public String getRecipeFav() {
+        return recipeFav;
+    }
+
+    public void setRecipeFav(String recipeFav) {
+        this.recipeFav = recipeFav;
+    }
+
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
 }

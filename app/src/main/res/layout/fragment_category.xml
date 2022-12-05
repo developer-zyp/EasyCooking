@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorOnSecondary"
     tools:context="com.proton.easycooking.fragments.CategoryFragment">
 
-
-    <!-- TODO: Update blank fragment layout -->
     <LinearLayout
         android:id="@+id/rootLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grey_10"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -25,9 +22,9 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="60dp"
+                android:layout_height="wrap_content"
                 android:clipToPadding="false"
+                android:paddingBottom="60dp"
                 android:scrollbars="none" />
 
         </RelativeLayout>
