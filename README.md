@@ -10,7 +10,7 @@ Food Recipes and Kitchen Help App Android project with Java, SQLite, Retrofit
 - Gson
 - Glide
 
-[ချက်ကြည့် : EasyCooking](https://play.google.com/store/apps/details?id=com.proton.easycooking)
+# [ချက်ကြည့် : EasyCooking](https://play.google.com/store/apps/details?id=com.proton.easycooking)
 
 ## Screenshots
 
